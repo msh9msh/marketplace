@@ -6,8 +6,7 @@
   "Nav": {
     "login": "لاگ ان",
     "signUp": "فارمیسی رجسٹریشن",
-    "adminPharmacies": "ایڈمن: فارمیسی تصدیق",
-    "adminSuppliers": "ایڈمن: سپلائرز"
+    "adminPharmacies": "ایڈمن: فارمیسی تصدیق"
   },
   "Auth": {
     "loginTitle": "لاگ ان",
@@ -43,25 +42,5 @@
     "actionsCol": "اقدامات",
     "approve": "منظور کریں",
     "reject": "مسترد کریں"
-  },
-  "AdminSuppliers": {
-    "title": "سپلائرز اور معاہدے",
-    "nameLabel": "سپلائر کا نام",
-    "sfdaLabel": "SFDA لائسنس نمبر",
-    "slaHoursLabel": "ترسیل کی مہلت (گھنٹے)",
-    "payoutDaysLabel": "ادائیگی کی مہلت (دن)",
-    "rebateRateLabel": "ریبیٹ ریٹ (%)",
-    "targetTypeLabel": "ہدف کی قسم",
-    "targetTypeQuantity": "مقدار",
-    "targetTypeAmount": "رقم",
-    "targetValueLabel": "ہدف کی قیمت",
-    "periodStartLabel": "مدت کا آغاز",
-    "periodEndLabel": "مدت کا اختتام",
-    "submit": "سپلائر شامل کریں",
-    "listTitle": "معاہدہ شدہ سپلائرز",
-    "nameCol": "نام",
-    "sfdaCol": "SFDA لائسنس",
-    "payoutDaysCol": "ادائیگی کی مہلت",
-    "rebateCol": "ریبیٹ ریٹ"
   }
 }

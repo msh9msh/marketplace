@@ -6,8 +6,7 @@
   "Nav": {
     "login": "Log in",
     "signUp": "Pharmacy sign up",
-    "adminPharmacies": "Admin: pharmacy verification",
-    "adminSuppliers": "Admin: suppliers"
+    "adminPharmacies": "Admin: pharmacy verification"
   },
   "Auth": {
     "loginTitle": "Log in",
@@ -43,25 +42,5 @@
     "actionsCol": "Actions",
     "approve": "Approve",
     "reject": "Reject"
-  },
-  "AdminSuppliers": {
-    "title": "Suppliers & contracts",
-    "nameLabel": "Supplier name",
-    "sfdaLabel": "SFDA license number",
-    "slaHoursLabel": "SLA (hours)",
-    "payoutDaysLabel": "Payout days",
-    "rebateRateLabel": "Rebate rate (%)",
-    "targetTypeLabel": "Target type",
-    "targetTypeQuantity": "Quantity",
-    "targetTypeAmount": "Amount",
-    "targetValueLabel": "Target value",
-    "periodStartLabel": "Period start",
-    "periodEndLabel": "Period end",
-    "submit": "Add supplier",
-    "listTitle": "Contracted suppliers",
-    "nameCol": "Name",
-    "sfdaCol": "SFDA license",
-    "payoutDaysCol": "Payout days",
-    "rebateCol": "Rebate rate"
   }
 }

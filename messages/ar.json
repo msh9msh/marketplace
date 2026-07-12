@@ -6,8 +6,7 @@
   "Nav": {
     "login": "تسجيل الدخول",
     "signUp": "تسجيل صيدلية جديدة",
-    "adminPharmacies": "الإدارة: التحقق من الصيدليات",
-    "adminSuppliers": "الإدارة: الموردون"
+    "adminPharmacies": "الإدارة: التحقق من الصيدليات"
   },
   "Auth": {
     "loginTitle": "تسجيل الدخول",
@@ -43,25 +42,5 @@
     "actionsCol": "الإجراءات",
     "approve": "قبول",
     "reject": "رفض"
-  },
-  "AdminSuppliers": {
-    "title": "الموردون والعقود",
-    "nameLabel": "اسم المورد",
-    "sfdaLabel": "رقم ترخيص الهيئة العامة للغذاء والدواء",
-    "slaHoursLabel": "مهلة التوريد (ساعات)",
-    "payoutDaysLabel": "مهلة سداد المستحقات (أيام)",
-    "rebateRateLabel": "نسبة الاسترداد (%)",
-    "targetTypeLabel": "نوع المستهدف",
-    "targetTypeQuantity": "كمية",
-    "targetTypeAmount": "مبلغ",
-    "targetValueLabel": "قيمة المستهدف",
-    "periodStartLabel": "بداية الفترة",
-    "periodEndLabel": "نهاية الفترة",
-    "submit": "إضافة مورد",
-    "listTitle": "الموردون المتعاقدون",
-    "nameCol": "الاسم",
-    "sfdaCol": "ترخيص الهيئة",
-    "payoutDaysCol": "مهلة السداد",
-    "rebateCol": "نسبة الاسترداد"
   }
 }

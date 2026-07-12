@@ -1,33 +1,48 @@
-# Tech Stack Decisions
+# Tech Stack Decisions (v4 — supplier catalog + weekly sync)
 
 ## Locked in
-- Next.js (App Router) + TypeScript + Tailwind — single repo, frontend and
-  backend together for v1. Don't split into a separate backend service yet.
+- Next.js (App Router) + TypeScript + Tailwind — single repo.
 - PostgreSQL + Prisma ORM.
-- next-intl for Arabic/English/Urdu, with RTL handling for Arabic and Urdu.
-- Deploy: Vercel for the app.
-- **Supabase**: Postgres + Auth + Storage, one vendor for all three. Auth is
-  phone number + OTP (matches how pharmacy staff actually operate day to
-  day). Storage holds pharmacy license-verification documents.
+- next-intl for Arabic/English, RTL handling for Arabic.
+- Auth supporting mobile number OR email for both account types.
+- Excel parsing/generation: `xlsx` or `exceljs` for the supplier bulk
+  catalog upload — validate every row server-side before applying any
+  change; never trust client-side validation alone.
+- Charting library (Recharts or Chart.js) for the landing page.
+- Deploy: Vercel for the app + managed Postgres (Supabase or Neon).
 
 ## Needs a decision before building the related feature
-- **Payment gateway**: must support mada + credit cards, and needs to be
-  usable by a newly registered Saudi commercial entity. Still unconfirmed —
-  candidates considered: Moyasar, HyperPay/Geidea, PayTabs, Tap. Don't
-  hardcode against a specific vendor's SDK until this is confirmed — isolate
-  payment calls behind a small internal interface so swapping providers later
-  is a contained change. This gates `docs/roadmap.md` Phase 3.
-- **E-invoicing (ZATCA) provider**: needed before the periodic statement
-  feature (`docs/screens.md`, phase 2, item 10) goes live with real
-  transactions. Sandbox/mock this until a provider is chosen.
-- **SMS/WhatsApp notifications** (order status updates to pharmacies and
-  suppliers): not scoped in detail yet — start with in-app status only, add
-  notifications once the core flow works.
+- **Payment gateway**: mada + cards, needs to support a commission/split
+  model. Isolate behind an internal interface. Still the one open gap
+  that's persisted across every version of this project — resolve before
+  building checkout.
+
+## Resolved (v1 defaults — build against these, don't leave them open)
+- **Commission rate**: a single global platform rate, stored in
+  `PlatformSetting`, copied into each `Transaction.commission_rate` at
+  creation time. Not negotiated per supplier.
+- **Supplier payout timing**: no automated scheduling in v1.
+  `Transaction.payout_status` is set manually/in batch by admin outside
+  the app. Automate later, once the payment gateway is chosen.
+- **E-invoicing (ZATCA)**: explicitly OUT of scope for v1. No invoice
+  model. Revisit before real-money launch.
+- **Cart persistence**: client-side only until checkout. No draft
+  `Transaction` or reserved-inventory record while browsing. Stock is
+  checked/decremented atomically at checkout time.
+- **Concurrent supply offers**: accepting one auto-rejects all other
+  pending offers on the same `SupplyRequest`, in the same operation.
+- **Weekly upload reminder delivery**: in-app notification/banner only for
+  v1. SMS/email/WhatsApp reminders are a later addition.
+
+## Geographic matching (v1 scope)
+- City/district string matching only. No geocoding, no lat/long, no maps
+  SDK. If this needs to become precise-distance-based later, that's a
+  deliberate v2 feature, not something to half-build now.
 
 ## Explicitly rejected for v1
-- Separate NestJS/Django backend — unnecessary complexity for a solo build;
-  revisit only if the Next.js API routes genuinely become a bottleneck.
-- Native mobile (React Native) — PWA covers the v1 need; native apps are a
-  post-validation investment, not a v1 requirement.
-- Supplier-facing login/portal — adds auth complexity with no v1 payoff since
-  admin relays assignments manually at this stage.
+- Separate NestJS/Django backend — unnecessary for this scope.
+- Native mobile (React Native) — PWA covers the v1 need.
+- Admin order-routing/assignment logic.
+- A supplier accept/reject step on catalog/cart purchases.
+- GPS/precise distance calculation.
+- Multi-supplier carts.

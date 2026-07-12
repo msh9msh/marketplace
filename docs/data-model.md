@@ -1,100 +1,111 @@
-# Data Model
+# Data Model (v4 — supplier catalog + weekly sync + geo browsing)
 
-This is the target schema for the MVP. Translate directly into Prisma models;
-field names below are the intended column names. See `docs/business-rules.md`
-for *why* each field exists before changing any of them.
+Translate directly into Prisma models. See `docs/business-rules.md` for
+*why* each field exists.
 
 ## Pharmacy
-- id
-- auth_user_id — links to the Supabase Auth user (Supabase Auth is a
-  separate identity store from Postgres/Prisma; this is the bridge).
+- id, authUserId
 - name
 - license_number, license_doc_url
 - verification_status: enum [pending, verified, rejected]
-- contact_phone, contact_email, city, address
+- login_identifier_type: enum [mobile, email]
+- mobile (nullable), email (nullable)
+- city, district (nullable) — used for geographic matching
+- address
 - created_at
 
 ## Supplier
-- id
-- name, sfda_license_number
-- contract_status: enum [active, paused, terminated]
-- sla_hours: int (default 48)
+- id, authUserId
+- name
+- sfda_license_number, sfda_license_doc_url
+- verification_status: enum [pending, verified, rejected]
+- login_identifier_type: enum [mobile, email]
+- mobile (nullable), email (nullable)
+- city, district (nullable) — used for geographic matching
 - created_at
 
-## SupplierContract
+## CatalogItem
+Replaces the old standalone `Deal` model — a supplier's full catalog.
 - id, supplier_id
-- payout_days: int — see "Supplier payout timing" in business-rules.md.
-  This is the field that used to be assumed-immediate; it's now an explicit,
-  per-supplier, negotiated value.
-- rebate_rate: decimal — the platform's margin mechanic (see "How the
-  platform makes money" in business-rules.md). Negotiated per supplier, not
-  a platform-wide constant. Netted out of `SupplierPayout.amount`.
-- target_type: enum [quantity, amount]
-- target_value, period_start, period_end
-- achieved_value — updated by a background job whenever an order tied to
-  this supplier reaches `received`/auto-confirmed status.
-- One active target per supplier at a time — target fields live directly on
-  this row rather than a separate history table. Renegotiating a target
-  mid-period means updating this row, not inserting a new one; if per-period
-  target history is ever needed later, that's a deliberate v2 change, not an
-  oversight.
+- product_name, product_type
+- sku (nullable) — used to match rows on Excel re-upload if present
+- price, discount_percentage (nullable) — store the discounted price the
+  pharmacy actually pays as the effective price; keep both the base price
+  and discount if the supplier wants the original shown as a strike-through
+- quantity_available — decrements on purchase
+- is_featured: boolean — supplier-controlled flag for landing-page/browse
+  highlighting; NOT a separate model
+- status: enum [active, inactive] — supplier can deactivate without
+  deleting (preserves history for past transactions)
+- created_at, updated_at
 
-## Product
-- id, name, type, category
+## InventoryUpload
+Log of weekly (or ad hoc) Excel bulk-sync uploads.
+- id, supplier_id
+- file_url
+- status: enum [processing, completed, completed_with_errors, failed]
+- row_count, success_count, error_count
+- error_details (nullable, JSON) — per-row error messages
+- uploaded_at
 
-## SupplierPrice
-- id, supplier_id, product_id
+## SupplyRequest
+- id, pharmacy_id
+- product_name, product_type
+- quantity
+- note (nullable)
+- status: enum [open, fulfilled, closed]
+- created_at
+
+## SupplyOffer
+- id, supply_request_id, supplier_id
 - price
-- effective_from — keep history; don't overwrite, insert a new row when a
-  supplier updates a price.
+- message (nullable)
+- status: enum [pending, accepted, rejected] — when one offer on a request
+  is accepted, all other pending offers on the same request are
+  auto-transitioned to rejected in the same operation (see
+  business-rules.md, "Concurrent supply offers")
+- created_at, responded_at (nullable)
 
-## Order
-- id, pharmacy_id, product_id, quantity
-- locked_price — captured at creation from the lowest `SupplierPrice` for
-  that product among active suppliers. Immutable after creation.
-- status: enum [awaiting_payment, pending_review, assigned, in_progress,
-  delivered, received, issue, unavailable]
-- assigned_supplier_id (nullable until assignment)
-- actual_supplier_price (nullable until assignment) — internal only
-- created_at — this is the SLA clock start
-- assigned_at, delivered_at, received_confirmed_at (nullable, set as the
-  order progresses)
-- sla_deadline — computed: created_at + supplier.sla_hours
-- sla_breached — boolean, set by a background job comparing now() to
-  sla_deadline while status isn't yet `delivered`/`received`
+## PlatformSetting
+Single-row (or key-value) config table for platform-wide settings.
+- id
+- commission_rate — the current global rate, copied into each
+  `Transaction.commission_rate` at creation time
+- updated_at
 
-## Payment
-- id, order_id, pharmacy_id
-- amount — equals locked_price × quantity
-- method: enum [mada, card]
-- status: enum [pending, paid, failed, refunded]
-- paid_at
+## Transaction
+One row per checkout, regardless of how many catalog items are in the
+cart. Enforces single-supplier-per-cart at the application level (all
+`TransactionItem`s in a `Transaction` must belong to the same
+`supplier_id`).
+- id
+- source_type: enum [catalog_purchase, supply_offer]
+- pharmacy_id, supplier_id
+- total_amount
+- commission_rate — copied from the current global platform rate at the
+  moment of transaction (not looked up dynamically later; historical
+  transactions must not change if the rate changes afterward)
+- platform_commission_amount, supplier_payout_amount
+- payment_status: enum [pending, paid, failed, refunded]
+- payment_method: enum [mada, card]
+- payout_status: enum [pending, paid] — set manually/in batch by admin in
+  v1; no automated payout scheduling yet
+- paid_at, created_at
 
-## SupplierPayout
-- id, order_id, supplier_id
-- amount — equals `actual_supplier_price × quantity × (1 - rebate_rate)`,
-  i.e. the supplier's contracted rebate is netted out here, not collected
-  separately. See "How the platform makes money" in business-rules.md.
-- status: enum [pending, paid]
-- scheduled_for — computed from order.delivered_at (or the relevant batch
-  cutoff) + supplier_contract.payout_days
-- paid_at
-
-## Invoice (periodic statement)
-- id, pharmacy_id, period_start, period_end
-- total_amount, status: enum [draft, sent] — note: this is a *record*, not a
-  payment request, since every underlying order is already paid. Needed for
-  ZATCA e-invoicing compliance.
-- order_ids (join table: InvoiceOrder)
-
-## AdminAlert
-- id, order_id
-- type: enum [unassigned_timeout, sla_breach_risk, no_supplier_available]
-- triggered_at, resolved: boolean
+## TransactionItem
+- id, transaction_id
+- catalog_item_id (nullable — null when source_type = supply_offer)
+- supply_offer_id (nullable — null when source_type = catalog_purchase)
+- product_name, quantity, unit_price, line_total
 
 ## Notes for implementation
-- Money fields are integers in halalas (÷100 for display), never floats.
-- Every enum above should be a Prisma enum, not a free-text string column.
-- `Order.status` transitions should go through a single service function
-  (e.g. `transitionOrderStatus`), not be set directly in multiple places —
-  this is where SLA/alert side effects should live.
+- Prices/amounts are integers in halalas, never floats.
+- Every enum above should be a Prisma enum.
+- The single-supplier-per-cart rule is enforced in application logic when
+  building/committing a `Transaction`, not something the schema alone can
+  guarantee — validate it explicitly before creating `TransactionItem`
+  rows.
+- The commission calculation must be one shared function called from both
+  the catalog-checkout flow and the supply-offer-acceptance flow.
+- No standalone `Deal`, `Order`, `Payment` (as its own model), `Invoice`,
+  or `AdminAlert` models in this version.

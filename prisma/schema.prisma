@@ -1,6 +1,6 @@
-// Prisma schema — mirrors starter-kit/docs/data-model.md.
-// Read that doc (and business-rules.md) before changing any field here;
-// several of these are non-negotiable business rules, not arbitrary shapes.
+// Prisma schema — mirrors starter-kit/docs/data-model.md (v4: supplier
+// catalog + weekly Excel sync + geo browsing + commission checkout).
+// Read that doc (and business-rules.md) before changing any field here.
 
 generator client {
   provider = "prisma-client"
@@ -17,31 +17,38 @@ enum VerificationStatus {
   rejected
 }
 
-enum ContractStatus {
+enum LoginIdentifierType {
+  mobile
+  email
+}
+
+enum CatalogItemStatus {
   active
-  paused
-  terminated
+  inactive
 }
 
-enum TargetType {
-  quantity
-  amount
+enum InventoryUploadStatus {
+  processing
+  completed
+  completed_with_errors
+  failed
 }
 
-enum OrderStatus {
-  awaiting_payment
-  pending_review
-  assigned
-  in_progress
-  delivered
-  received
-  issue
-  unavailable
+enum SupplyRequestStatus {
+  open
+  fulfilled
+  closed
 }
 
-enum PaymentMethod {
-  mada
-  card
+enum SupplyOfferStatus {
+  pending
+  accepted
+  rejected
+}
+
+enum TransactionSourceType {
+  catalog_purchase
+  supply_offer
 }
 
 enum PaymentStatus {
@@ -51,208 +58,190 @@ enum PaymentStatus {
   refunded
 }
 
+enum PaymentMethod {
+  mada
+  card
+}
+
 enum PayoutStatus {
   pending
   paid
 }
 
-enum InvoiceStatus {
-  draft
-  sent
-}
-
-enum AlertType {
-  unassigned_timeout
-  sla_breach_risk
-  no_supplier_available
-}
-
 model Pharmacy {
-  id                 String             @id @default(cuid())
-  // Bridges to Supabase Auth's own user store (not a Prisma-managed table) —
-  // Supabase Auth handles identity/OTP, Postgres/Prisma holds domain data.
-  authUserId         String             @unique @map("auth_user_id")
-  name               String
-  licenseNumber      String             @unique @map("license_number")
-  licenseDocUrl      String             @map("license_doc_url")
-  verificationStatus VerificationStatus @default(pending) @map("verification_status")
-  contactPhone       String             @map("contact_phone")
-  contactEmail       String?            @map("contact_email")
-  city               String?
-  address            String?
-  createdAt          DateTime           @default(now()) @map("created_at")
+  id                  String              @id @default(cuid())
+  // Bridges to Supabase Auth's own user store, same pattern as Supplier.
+  authUserId          String              @unique @map("auth_user_id")
+  name                String
+  licenseNumber       String              @unique @map("license_number")
+  licenseDocUrl       String              @map("license_doc_url")
+  verificationStatus  VerificationStatus  @default(pending) @map("verification_status")
+  loginIdentifierType LoginIdentifierType @map("login_identifier_type")
+  mobile              String?             @unique
+  email               String?             @unique
+  city                String
+  district            String?
+  address             String
+  createdAt           DateTime            @default(now()) @map("created_at")
 
-  orders   Order[]
-  payments Payment[]
-  invoices Invoice[]
+  supplyRequests SupplyRequest[]
+  transactions   Transaction[]
 
   @@map("pharmacies")
 }
 
 model Supplier {
-  id                String         @id @default(cuid())
-  name              String
-  sfdaLicenseNumber String         @unique @map("sfda_license_number")
-  contractStatus    ContractStatus @default(active) @map("contract_status")
-  slaHours          Int            @default(48) @map("sla_hours")
-  createdAt         DateTime       @default(now()) @map("created_at")
+  id                  String              @id @default(cuid())
+  authUserId          String              @unique @map("auth_user_id")
+  name                String
+  sfdaLicenseNumber   String              @unique @map("sfda_license_number")
+  sfdaLicenseDocUrl   String              @map("sfda_license_doc_url")
+  verificationStatus  VerificationStatus  @default(pending) @map("verification_status")
+  loginIdentifierType LoginIdentifierType @map("login_identifier_type")
+  mobile              String?             @unique
+  email               String?             @unique
+  city                String
+  district            String?
+  createdAt           DateTime            @default(now()) @map("created_at")
 
-  contract       SupplierContract?
-  prices         SupplierPrice[]
-  assignedOrders Order[]
-  payouts        SupplierPayout[]
+  catalogItems     CatalogItem[]
+  inventoryUploads InventoryUpload[]
+  supplyOffers     SupplyOffer[]
+  transactions     Transaction[]
 
   @@map("suppliers")
 }
 
-// One active contract/target per supplier — see data-model.md: renegotiating
-// mid-period updates this row rather than inserting a new one.
-model SupplierContract {
-  id            String     @id @default(cuid())
-  supplierId    String     @unique @map("supplier_id")
-  payoutDays    Int        @map("payout_days")
-  rebateRate    Decimal    @map("rebate_rate") @db.Decimal(5, 4)
-  targetType    TargetType @map("target_type")
-  targetValue   Int        @map("target_value")
-  periodStart   DateTime   @map("period_start")
-  periodEnd     DateTime   @map("period_end")
-  achievedValue Int        @default(0) @map("achieved_value")
+// A supplier's full catalog — replaces the old standalone Deal model.
+// Featured items (is_featured) are a flag on a catalog row, not a
+// separate listing type.
+model CatalogItem {
+  id                 String            @id @default(cuid())
+  supplierId         String            @map("supplier_id")
+  productName        String            @map("product_name")
+  productType        String            @map("product_type")
+  sku                String?
+  price              Int
+  discountPercentage Decimal?          @map("discount_percentage") @db.Decimal(5, 2)
+  quantityAvailable  Int               @map("quantity_available")
+  isFeatured         Boolean           @default(false) @map("is_featured")
+  status             CatalogItemStatus @default(active)
+  createdAt          DateTime          @default(now()) @map("created_at")
+  updatedAt          DateTime          @updatedAt @map("updated_at")
+
+  supplier         Supplier          @relation(fields: [supplierId], references: [id])
+  transactionItems TransactionItem[]
+
+  @@index([supplierId, sku])
+  @@map("catalog_items")
+}
+
+// Log of weekly (or ad hoc) Excel bulk-sync uploads.
+model InventoryUpload {
+  id           String                @id @default(cuid())
+  supplierId   String                @map("supplier_id")
+  fileUrl      String                @map("file_url")
+  status       InventoryUploadStatus @default(processing)
+  rowCount     Int                   @map("row_count")
+  successCount Int                   @map("success_count")
+  errorCount   Int                   @map("error_count")
+  errorDetails Json?                 @map("error_details")
+  uploadedAt   DateTime              @default(now()) @map("uploaded_at")
 
   supplier Supplier @relation(fields: [supplierId], references: [id])
 
-  @@map("supplier_contracts")
+  @@map("inventory_uploads")
 }
 
-model Product {
-  id       String @id @default(cuid())
-  name     String
-  type     String
-  category String
+model SupplyRequest {
+  id          String              @id @default(cuid())
+  pharmacyId  String              @map("pharmacy_id")
+  productName String              @map("product_name")
+  productType String              @map("product_type")
+  quantity    Int
+  note        String?
+  status      SupplyRequestStatus @default(open)
+  createdAt   DateTime            @default(now()) @map("created_at")
 
-  prices SupplierPrice[]
-  orders Order[]
+  pharmacy Pharmacy      @relation(fields: [pharmacyId], references: [id])
+  offers   SupplyOffer[]
 
-  @@map("products")
+  @@map("supply_requests")
 }
 
-// Price history — never overwrite, insert a new row when a supplier updates
-// a price. locked_price is derived from the latest effective_from row among
-// active suppliers at order-creation time.
-model SupplierPrice {
-  id            String   @id @default(cuid())
-  supplierId    String   @map("supplier_id")
-  productId     String   @map("product_id")
-  price         Int
-  effectiveFrom DateTime @default(now()) @map("effective_from")
+// When one offer on a request is accepted, all other pending offers on
+// the same request are auto-transitioned to rejected in the same
+// operation — see business-rules.md "Concurrent supply offers".
+model SupplyOffer {
+  id              String            @id @default(cuid())
+  supplyRequestId String            @map("supply_request_id")
+  supplierId      String            @map("supplier_id")
+  price           Int
+  message         String?
+  status          SupplyOfferStatus @default(pending)
+  createdAt       DateTime          @default(now()) @map("created_at")
+  respondedAt     DateTime?         @map("responded_at")
 
-  supplier Supplier @relation(fields: [supplierId], references: [id])
-  product  Product  @relation(fields: [productId], references: [id])
+  supplyRequest    SupplyRequest     @relation(fields: [supplyRequestId], references: [id])
+  supplier         Supplier          @relation(fields: [supplierId], references: [id])
+  transactionItems TransactionItem[]
 
-  @@index([productId, supplierId, effectiveFrom])
-  @@map("supplier_prices")
+  @@map("supply_offers")
 }
 
-model Order {
-  id                  String      @id @default(cuid())
-  pharmacyId          String      @map("pharmacy_id")
-  productId           String      @map("product_id")
-  quantity            Int
-  // Raw lowest supplier price at creation — no platform markup, immutable.
-  // See business-rules.md "Price locking".
-  lockedPrice         Int         @map("locked_price")
-  status              OrderStatus @default(awaiting_payment)
-  assignedSupplierId  String?     @map("assigned_supplier_id")
-  // Internal reconciliation only — never shown to the pharmacy.
-  actualSupplierPrice Int?        @map("actual_supplier_price")
-  // SLA clock start — set on confirmed payment, not on order creation row
-  // insert. See business-rules.md "The 48-hour SLA clock".
-  createdAt           DateTime    @default(now()) @map("created_at")
-  assignedAt          DateTime?   @map("assigned_at")
-  deliveredAt         DateTime?   @map("delivered_at")
-  receivedConfirmedAt DateTime?   @map("received_confirmed_at")
-  slaDeadline         DateTime?   @map("sla_deadline")
-  slaBreached         Boolean     @default(false) @map("sla_breached")
+// Single-row config table for platform-wide settings.
+model PlatformSetting {
+  id             String   @id @default(cuid())
+  commissionRate Decimal  @map("commission_rate") @db.Decimal(5, 4)
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
-  pharmacy         Pharmacy        @relation(fields: [pharmacyId], references: [id])
-  product          Product         @relation(fields: [productId], references: [id])
-  assignedSupplier Supplier?       @relation(fields: [assignedSupplierId], references: [id])
-  payment          Payment?
-  payout           SupplierPayout?
-  alerts           AdminAlert[]
-  invoiceOrders    InvoiceOrder[]
-
-  @@index([status, slaDeadline])
-  @@map("orders")
+  @@map("platform_settings")
 }
 
-model Payment {
-  id         String        @id @default(cuid())
-  orderId    String        @unique @map("order_id")
-  pharmacyId String        @map("pharmacy_id")
-  amount     Int
-  method     PaymentMethod
-  status     PaymentStatus @default(pending)
-  paidAt     DateTime?     @map("paid_at")
+// One row per checkout, regardless of how many catalog items are in the
+// cart. Single-supplier-per-cart is enforced in application logic, not
+// by the schema — see data-model.md "Notes for implementation".
+model Transaction {
+  id                       String                @id @default(cuid())
+  sourceType               TransactionSourceType @map("source_type")
+  pharmacyId               String                @map("pharmacy_id")
+  supplierId               String                @map("supplier_id")
+  totalAmount              Int                   @map("total_amount")
+  // Copied from PlatformSetting at creation time — must not change
+  // retroactively if the global rate changes later.
+  commissionRate           Decimal               @map("commission_rate") @db.Decimal(5, 4)
+  platformCommissionAmount Int                   @map("platform_commission_amount")
+  supplierPayoutAmount     Int                   @map("supplier_payout_amount")
+  paymentStatus            PaymentStatus         @default(pending) @map("payment_status")
+  paymentMethod            PaymentMethod         @map("payment_method")
+  // Set manually/in batch by admin outside the app in v1 — no automated
+  // payout scheduling yet.
+  payoutStatus             PayoutStatus          @default(pending) @map("payout_status")
+  paidAt                   DateTime?             @map("paid_at")
+  createdAt                DateTime              @default(now()) @map("created_at")
 
-  order    Order    @relation(fields: [orderId], references: [id])
-  pharmacy Pharmacy @relation(fields: [pharmacyId], references: [id])
+  pharmacy Pharmacy          @relation(fields: [pharmacyId], references: [id])
+  supplier Supplier          @relation(fields: [supplierId], references: [id])
+  items    TransactionItem[]
 
-  @@map("payments")
+  @@map("transactions")
 }
 
-// amount nets the supplier's rebate_rate out at settlement — see
-// business-rules.md "How the platform makes money".
-model SupplierPayout {
-  id           String       @id @default(cuid())
-  orderId      String       @unique @map("order_id")
-  supplierId   String       @map("supplier_id")
-  amount       Int
-  status       PayoutStatus @default(pending)
-  scheduledFor DateTime?    @map("scheduled_for")
-  paidAt       DateTime?    @map("paid_at")
+model TransactionItem {
+  id            String  @id @default(cuid())
+  transactionId String  @map("transaction_id")
+  // Null when sourceType = supply_offer.
+  catalogItemId String? @map("catalog_item_id")
+  // Null when sourceType = catalog_purchase.
+  supplyOfferId String? @map("supply_offer_id")
+  productName   String  @map("product_name")
+  quantity      Int
+  unitPrice     Int     @map("unit_price")
+  lineTotal     Int     @map("line_total")
 
-  order    Order    @relation(fields: [orderId], references: [id])
-  supplier Supplier @relation(fields: [supplierId], references: [id])
+  transaction Transaction  @relation(fields: [transactionId], references: [id])
+  catalogItem CatalogItem? @relation(fields: [catalogItemId], references: [id])
+  supplyOffer SupplyOffer? @relation(fields: [supplyOfferId], references: [id])
 
-  @@map("supplier_payouts")
-}
-
-// A record/e-invoicing artifact, not a payment request — every underlying
-// order is already paid at creation.
-model Invoice {
-  id          String        @id @default(cuid())
-  pharmacyId  String        @map("pharmacy_id")
-  periodStart DateTime      @map("period_start")
-  periodEnd   DateTime      @map("period_end")
-  totalAmount Int           @map("total_amount")
-  status      InvoiceStatus @default(draft)
-
-  pharmacy Pharmacy       @relation(fields: [pharmacyId], references: [id])
-  orders   InvoiceOrder[]
-
-  @@map("invoices")
-}
-
-model InvoiceOrder {
-  id        String @id @default(cuid())
-  invoiceId String @map("invoice_id")
-  orderId   String @map("order_id")
-
-  invoice Invoice @relation(fields: [invoiceId], references: [id])
-  order   Order   @relation(fields: [orderId], references: [id])
-
-  @@unique([invoiceId, orderId])
-  @@map("invoice_orders")
-}
-
-model AdminAlert {
-  id          String    @id @default(cuid())
-  orderId     String    @map("order_id")
-  type        AlertType
-  triggeredAt DateTime  @default(now()) @map("triggered_at")
-  resolved    Boolean   @default(false)
-
-  order Order @relation(fields: [orderId], references: [id])
-
-  @@map("admin_alerts")
+  @@map("transaction_items")
 }
