@@ -7,7 +7,8 @@
     "login": "Log in",
     "signUp": "Pharmacy sign up",
     "supplierSignUp": "Supplier sign up",
-    "adminPharmacies": "Admin: pharmacy verification"
+    "adminPharmacies": "Admin: pharmacy verification",
+    "adminSuppliers": "Admin: supplier verification"
   },
   "Auth": {
     "loginTitle": "Log in",
@@ -49,6 +50,16 @@
     "empty": "No pharmacies awaiting verification.",
     "nameCol": "Name",
     "licenseCol": "License number",
+    "cityCol": "City",
+    "actionsCol": "Actions",
+    "approve": "Approve",
+    "reject": "Reject"
+  },
+  "AdminSuppliers": {
+    "title": "Supplier verification queue",
+    "empty": "No suppliers awaiting verification.",
+    "nameCol": "Name",
+    "sfdaCol": "SFDA license number",
     "cityCol": "City",
     "actionsCol": "Actions",
     "approve": "Approve",

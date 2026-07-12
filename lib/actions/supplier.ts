@@ -1,8 +1,10 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { uploadSupplierLicenseDocument } from "@/lib/supabase/storage";
+import { requireAdmin } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 
 export async function submitSupplierProfile(formData: FormData) {
@@ -58,4 +60,22 @@ export async function submitSupplierProfile(formData: FormData) {
   }
 
   return { ok: true as const };
+}
+
+export async function approveSupplier(supplierId: string, locale: string) {
+  await requireAdmin(locale);
+  await prisma.supplier.update({
+    where: { id: supplierId },
+    data: { verificationStatus: "verified" },
+  });
+  revalidatePath(`/${locale}/admin/suppliers`);
+}
+
+export async function rejectSupplier(supplierId: string, locale: string) {
+  await requireAdmin(locale);
+  await prisma.supplier.update({
+    where: { id: supplierId },
+    data: { verificationStatus: "rejected" },
+  });
+  revalidatePath(`/${locale}/admin/suppliers`);
 }

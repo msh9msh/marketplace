@@ -7,7 +7,8 @@
     "login": "تسجيل الدخول",
     "signUp": "تسجيل صيدلية جديدة",
     "supplierSignUp": "تسجيل مورد جديد",
-    "adminPharmacies": "الإدارة: التحقق من الصيدليات"
+    "adminPharmacies": "الإدارة: التحقق من الصيدليات",
+    "adminSuppliers": "الإدارة: التحقق من الموردين"
   },
   "Auth": {
     "loginTitle": "تسجيل الدخول",
@@ -49,6 +50,16 @@
     "empty": "لا توجد صيدليات بانتظار التحقق.",
     "nameCol": "الاسم",
     "licenseCol": "رقم الترخيص",
+    "cityCol": "المدينة",
+    "actionsCol": "الإجراءات",
+    "approve": "قبول",
+    "reject": "رفض"
+  },
+  "AdminSuppliers": {
+    "title": "قائمة انتظار التحقق من الموردين",
+    "empty": "لا يوجد موردون بانتظار التحقق.",
+    "nameCol": "الاسم",
+    "sfdaCol": "رقم ترخيص الهيئة",
     "cityCol": "المدينة",
     "actionsCol": "الإجراءات",
     "approve": "قبول",
