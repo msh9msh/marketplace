@@ -13,8 +13,15 @@ export async function getPostLoginDestination() {
     return "/login";
   }
 
-  if (user.user_metadata?.role === "admin") {
+  const role = user.user_metadata?.role;
+
+  if (role === "admin") {
     return "/admin/pharmacies";
+  }
+
+  if (role === "supplier") {
+    // No supplier catalog/dashboard screens yet — see docs/roadmap.md.
+    return "/";
   }
 
   const pharmacy = await prisma.pharmacy.findUnique({
