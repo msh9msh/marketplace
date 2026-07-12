@@ -1,0 +1,255 @@
+// Prisma schema — mirrors starter-kit/docs/data-model.md.
+// Read that doc (and business-rules.md) before changing any field here;
+// several of these are non-negotiable business rules, not arbitrary shapes.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum VerificationStatus {
+  pending
+  verified
+  rejected
+}
+
+enum ContractStatus {
+  active
+  paused
+  terminated
+}
+
+enum TargetType {
+  quantity
+  amount
+}
+
+enum OrderStatus {
+  awaiting_payment
+  pending_review
+  assigned
+  in_progress
+  delivered
+  received
+  issue
+  unavailable
+}
+
+enum PaymentMethod {
+  mada
+  card
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  failed
+  refunded
+}
+
+enum PayoutStatus {
+  pending
+  paid
+}
+
+enum InvoiceStatus {
+  draft
+  sent
+}
+
+enum AlertType {
+  unassigned_timeout
+  sla_breach_risk
+  no_supplier_available
+}
+
+model Pharmacy {
+  id                 String             @id @default(cuid())
+  name               String
+  licenseNumber      String             @unique @map("license_number")
+  licenseDocUrl      String             @map("license_doc_url")
+  verificationStatus VerificationStatus @default(pending) @map("verification_status")
+  contactPhone       String             @map("contact_phone")
+  contactEmail       String?            @map("contact_email")
+  city               String?
+  address            String?
+  createdAt          DateTime           @default(now()) @map("created_at")
+
+  orders   Order[]
+  payments Payment[]
+  invoices Invoice[]
+
+  @@map("pharmacies")
+}
+
+model Supplier {
+  id                String         @id @default(cuid())
+  name              String
+  sfdaLicenseNumber String         @unique @map("sfda_license_number")
+  contractStatus    ContractStatus @default(active) @map("contract_status")
+  slaHours          Int            @default(48) @map("sla_hours")
+  createdAt         DateTime       @default(now()) @map("created_at")
+
+  contract       SupplierContract?
+  prices         SupplierPrice[]
+  assignedOrders Order[]
+  payouts        SupplierPayout[]
+
+  @@map("suppliers")
+}
+
+// One active contract/target per supplier — see data-model.md: renegotiating
+// mid-period updates this row rather than inserting a new one.
+model SupplierContract {
+  id            String     @id @default(cuid())
+  supplierId    String     @unique @map("supplier_id")
+  payoutDays    Int        @map("payout_days")
+  rebateRate    Decimal    @map("rebate_rate") @db.Decimal(5, 4)
+  targetType    TargetType @map("target_type")
+  targetValue   Int        @map("target_value")
+  periodStart   DateTime   @map("period_start")
+  periodEnd     DateTime   @map("period_end")
+  achievedValue Int        @default(0) @map("achieved_value")
+
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+
+  @@map("supplier_contracts")
+}
+
+model Product {
+  id       String @id @default(cuid())
+  name     String
+  type     String
+  category String
+
+  prices SupplierPrice[]
+  orders Order[]
+
+  @@map("products")
+}
+
+// Price history — never overwrite, insert a new row when a supplier updates
+// a price. locked_price is derived from the latest effective_from row among
+// active suppliers at order-creation time.
+model SupplierPrice {
+  id            String   @id @default(cuid())
+  supplierId    String   @map("supplier_id")
+  productId     String   @map("product_id")
+  price         Int
+  effectiveFrom DateTime @default(now()) @map("effective_from")
+
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+  product  Product  @relation(fields: [productId], references: [id])
+
+  @@index([productId, supplierId, effectiveFrom])
+  @@map("supplier_prices")
+}
+
+model Order {
+  id                  String      @id @default(cuid())
+  pharmacyId          String      @map("pharmacy_id")
+  productId           String      @map("product_id")
+  quantity            Int
+  // Raw lowest supplier price at creation — no platform markup, immutable.
+  // See business-rules.md "Price locking".
+  lockedPrice         Int         @map("locked_price")
+  status              OrderStatus @default(awaiting_payment)
+  assignedSupplierId  String?     @map("assigned_supplier_id")
+  // Internal reconciliation only — never shown to the pharmacy.
+  actualSupplierPrice Int?        @map("actual_supplier_price")
+  // SLA clock start — set on confirmed payment, not on order creation row
+  // insert. See business-rules.md "The 48-hour SLA clock".
+  createdAt           DateTime    @default(now()) @map("created_at")
+  assignedAt          DateTime?   @map("assigned_at")
+  deliveredAt         DateTime?   @map("delivered_at")
+  receivedConfirmedAt DateTime?   @map("received_confirmed_at")
+  slaDeadline         DateTime?   @map("sla_deadline")
+  slaBreached         Boolean     @default(false) @map("sla_breached")
+
+  pharmacy         Pharmacy        @relation(fields: [pharmacyId], references: [id])
+  product          Product         @relation(fields: [productId], references: [id])
+  assignedSupplier Supplier?       @relation(fields: [assignedSupplierId], references: [id])
+  payment          Payment?
+  payout           SupplierPayout?
+  alerts           AdminAlert[]
+  invoiceOrders    InvoiceOrder[]
+
+  @@index([status, slaDeadline])
+  @@map("orders")
+}
+
+model Payment {
+  id         String        @id @default(cuid())
+  orderId    String        @unique @map("order_id")
+  pharmacyId String        @map("pharmacy_id")
+  amount     Int
+  method     PaymentMethod
+  status     PaymentStatus @default(pending)
+  paidAt     DateTime?     @map("paid_at")
+
+  order    Order    @relation(fields: [orderId], references: [id])
+  pharmacy Pharmacy @relation(fields: [pharmacyId], references: [id])
+
+  @@map("payments")
+}
+
+// amount nets the supplier's rebate_rate out at settlement — see
+// business-rules.md "How the platform makes money".
+model SupplierPayout {
+  id           String       @id @default(cuid())
+  orderId      String       @unique @map("order_id")
+  supplierId   String       @map("supplier_id")
+  amount       Int
+  status       PayoutStatus @default(pending)
+  scheduledFor DateTime?    @map("scheduled_for")
+  paidAt       DateTime?    @map("paid_at")
+
+  order    Order    @relation(fields: [orderId], references: [id])
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+
+  @@map("supplier_payouts")
+}
+
+// A record/e-invoicing artifact, not a payment request — every underlying
+// order is already paid at creation.
+model Invoice {
+  id          String        @id @default(cuid())
+  pharmacyId  String        @map("pharmacy_id")
+  periodStart DateTime      @map("period_start")
+  periodEnd   DateTime      @map("period_end")
+  totalAmount Int           @map("total_amount")
+  status      InvoiceStatus @default(draft)
+
+  pharmacy Pharmacy       @relation(fields: [pharmacyId], references: [id])
+  orders   InvoiceOrder[]
+
+  @@map("invoices")
+}
+
+model InvoiceOrder {
+  id        String @id @default(cuid())
+  invoiceId String @map("invoice_id")
+  orderId   String @map("order_id")
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+  order   Order   @relation(fields: [orderId], references: [id])
+
+  @@unique([invoiceId, orderId])
+  @@map("invoice_orders")
+}
+
+model AdminAlert {
+  id          String    @id @default(cuid())
+  orderId     String    @map("order_id")
+  type        AlertType
+  triggeredAt DateTime  @default(now()) @map("triggered_at")
+  resolved    Boolean   @default(false)
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@map("admin_alerts")
+}
