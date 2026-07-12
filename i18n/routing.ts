@@ -1,10 +1,10 @@
 import { defineRouting } from "next-intl/routing";
 
 export const routing = defineRouting({
-  locales: ["ar", "en", "ur"],
+  locales: ["ar", "en"],
   defaultLocale: "ar",
 });
 
 export type Locale = (typeof routing.locales)[number];
 
-export const rtlLocales: ReadonlySet<Locale> = new Set(["ar", "ur"]);
+export const rtlLocales: ReadonlySet<Locale> = new Set(["ar"]);
