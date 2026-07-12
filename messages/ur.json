@@ -2,5 +2,66 @@
   "HomePage": {
     "title": "فارمیسی مارکیٹ پلیس",
     "description": "کوئی بھی آئٹم، کسی بھی مقدار میں آرڈر کریں — 48 گھنٹوں میں ترسیل کی ضمانت کے ساتھ۔"
+  },
+  "Nav": {
+    "login": "لاگ ان",
+    "signUp": "فارمیسی رجسٹریشن",
+    "adminPharmacies": "ایڈمن: فارمیسی تصدیق",
+    "adminSuppliers": "ایڈمن: سپلائرز"
+  },
+  "Auth": {
+    "loginTitle": "لاگ ان",
+    "signUpTitle": "فارمیسی رجسٹریشن",
+    "phoneLabel": "فون نمبر",
+    "phonePlaceholder": "+9665XXXXXXXX",
+    "sendCode": "کوڈ بھیجیں",
+    "otpLabel": "تصدیقی کوڈ",
+    "otpPlaceholder": "6 ہندسوں کا کوڈ",
+    "verifyCode": "تصدیق کریں",
+    "changePhone": "دوسرا نمبر استعمال کریں"
+  },
+  "SignUpForm": {
+    "nameLabel": "فارمیسی کا نام",
+    "licenseNumberLabel": "لائسنس نمبر",
+    "licenseDocLabel": "لائسنس دستاویز",
+    "contactEmailLabel": "ای میل",
+    "cityLabel": "شہر",
+    "addressLabel": "پتہ",
+    "submit": "تصدیق کے لیے جمع کریں"
+  },
+  "Pending": {
+    "title": "تصدیق زیر التوا ہے",
+    "description": "آپ کے لائسنس کا جائزہ لیا جا رہا ہے۔ تصدیق مکمل ہوتے ہی اکاؤنٹ فعال کر دیا جائے گا۔",
+    "rejectedDescription": "آپ کے لائسنس کی تصدیق مسترد کر دی گئی ہے۔ تفصیلات کے لیے سپورٹ سے رابطہ کریں۔"
+  },
+  "AdminPharmacies": {
+    "title": "فارمیسی تصدیق کی قطار",
+    "empty": "کوئی فارمیسی تصدیق کے منتظر نہیں ہے۔",
+    "nameCol": "نام",
+    "licenseCol": "لائسنس نمبر",
+    "cityCol": "شہر",
+    "actionsCol": "اقدامات",
+    "approve": "منظور کریں",
+    "reject": "مسترد کریں"
+  },
+  "AdminSuppliers": {
+    "title": "سپلائرز اور معاہدے",
+    "nameLabel": "سپلائر کا نام",
+    "sfdaLabel": "SFDA لائسنس نمبر",
+    "slaHoursLabel": "ترسیل کی مہلت (گھنٹے)",
+    "payoutDaysLabel": "ادائیگی کی مہلت (دن)",
+    "rebateRateLabel": "ریبیٹ ریٹ (%)",
+    "targetTypeLabel": "ہدف کی قسم",
+    "targetTypeQuantity": "مقدار",
+    "targetTypeAmount": "رقم",
+    "targetValueLabel": "ہدف کی قیمت",
+    "periodStartLabel": "مدت کا آغاز",
+    "periodEndLabel": "مدت کا اختتام",
+    "submit": "سپلائر شامل کریں",
+    "listTitle": "معاہدہ شدہ سپلائرز",
+    "nameCol": "نام",
+    "sfdaCol": "SFDA لائسنس",
+    "payoutDaysCol": "ادائیگی کی مہلت",
+    "rebateCol": "ریبیٹ ریٹ"
   }
 }

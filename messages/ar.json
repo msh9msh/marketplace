@@ -2,5 +2,66 @@
   "HomePage": {
     "title": "منصة توريد الصيدليات",
     "description": "اطلب أي صنف وأي كمية، مع ضمان التوصيل خلال 48 ساعة."
+  },
+  "Nav": {
+    "login": "تسجيل الدخول",
+    "signUp": "تسجيل صيدلية جديدة",
+    "adminPharmacies": "الإدارة: التحقق من الصيدليات",
+    "adminSuppliers": "الإدارة: الموردون"
+  },
+  "Auth": {
+    "loginTitle": "تسجيل الدخول",
+    "signUpTitle": "تسجيل صيدلية جديدة",
+    "phoneLabel": "رقم الجوال",
+    "phonePlaceholder": "+9665XXXXXXXX",
+    "sendCode": "إرسال الرمز",
+    "otpLabel": "رمز التحقق",
+    "otpPlaceholder": "الرمز المكون من 6 أرقام",
+    "verifyCode": "تحقق",
+    "changePhone": "استخدام رقم آخر"
+  },
+  "SignUpForm": {
+    "nameLabel": "اسم الصيدلية",
+    "licenseNumberLabel": "رقم الترخيص",
+    "licenseDocLabel": "مستند الترخيص",
+    "contactEmailLabel": "البريد الإلكتروني",
+    "cityLabel": "المدينة",
+    "addressLabel": "العنوان",
+    "submit": "إرسال للتحقق"
+  },
+  "Pending": {
+    "title": "قيد التحقق",
+    "description": "جارٍ مراجعة ترخيصكم. سيتم تفعيل الحساب فور اكتمال التحقق.",
+    "rejectedDescription": "تم رفض التحقق من الترخيص. تواصلوا مع الدعم لمعرفة التفاصيل."
+  },
+  "AdminPharmacies": {
+    "title": "قائمة انتظار التحقق من الصيدليات",
+    "empty": "لا توجد صيدليات بانتظار التحقق.",
+    "nameCol": "الاسم",
+    "licenseCol": "رقم الترخيص",
+    "cityCol": "المدينة",
+    "actionsCol": "الإجراءات",
+    "approve": "قبول",
+    "reject": "رفض"
+  },
+  "AdminSuppliers": {
+    "title": "الموردون والعقود",
+    "nameLabel": "اسم المورد",
+    "sfdaLabel": "رقم ترخيص الهيئة العامة للغذاء والدواء",
+    "slaHoursLabel": "مهلة التوريد (ساعات)",
+    "payoutDaysLabel": "مهلة سداد المستحقات (أيام)",
+    "rebateRateLabel": "نسبة الاسترداد (%)",
+    "targetTypeLabel": "نوع المستهدف",
+    "targetTypeQuantity": "كمية",
+    "targetTypeAmount": "مبلغ",
+    "targetValueLabel": "قيمة المستهدف",
+    "periodStartLabel": "بداية الفترة",
+    "periodEndLabel": "نهاية الفترة",
+    "submit": "إضافة مورد",
+    "listTitle": "الموردون المتعاقدون",
+    "nameCol": "الاسم",
+    "sfdaCol": "ترخيص الهيئة",
+    "payoutDaysCol": "مهلة السداد",
+    "rebateCol": "نسبة الاسترداد"
   }
 }

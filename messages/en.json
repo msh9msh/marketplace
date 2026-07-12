@@ -2,5 +2,66 @@
   "HomePage": {
     "title": "Pharmacy Marketplace",
     "description": "Order any item, any quantity, delivered within 48 hours."
+  },
+  "Nav": {
+    "login": "Log in",
+    "signUp": "Pharmacy sign up",
+    "adminPharmacies": "Admin: pharmacy verification",
+    "adminSuppliers": "Admin: suppliers"
+  },
+  "Auth": {
+    "loginTitle": "Log in",
+    "signUpTitle": "Pharmacy sign up",
+    "phoneLabel": "Phone number",
+    "phonePlaceholder": "+9665XXXXXXXX",
+    "sendCode": "Send code",
+    "otpLabel": "Verification code",
+    "otpPlaceholder": "6-digit code",
+    "verifyCode": "Verify",
+    "changePhone": "Use a different number"
+  },
+  "SignUpForm": {
+    "nameLabel": "Pharmacy name",
+    "licenseNumberLabel": "License number",
+    "licenseDocLabel": "License document",
+    "contactEmailLabel": "Contact email",
+    "cityLabel": "City",
+    "addressLabel": "Address",
+    "submit": "Submit for verification"
+  },
+  "Pending": {
+    "title": "Verification pending",
+    "description": "Your license is being reviewed. We'll activate your account once it's verified.",
+    "rejectedDescription": "Your license verification was rejected. Contact support for details."
+  },
+  "AdminPharmacies": {
+    "title": "Pharmacy verification queue",
+    "empty": "No pharmacies awaiting verification.",
+    "nameCol": "Name",
+    "licenseCol": "License number",
+    "cityCol": "City",
+    "actionsCol": "Actions",
+    "approve": "Approve",
+    "reject": "Reject"
+  },
+  "AdminSuppliers": {
+    "title": "Suppliers & contracts",
+    "nameLabel": "Supplier name",
+    "sfdaLabel": "SFDA license number",
+    "slaHoursLabel": "SLA (hours)",
+    "payoutDaysLabel": "Payout days",
+    "rebateRateLabel": "Rebate rate (%)",
+    "targetTypeLabel": "Target type",
+    "targetTypeQuantity": "Quantity",
+    "targetTypeAmount": "Amount",
+    "targetValueLabel": "Target value",
+    "periodStartLabel": "Period start",
+    "periodEndLabel": "Period end",
+    "submit": "Add supplier",
+    "listTitle": "Contracted suppliers",
+    "nameCol": "Name",
+    "sfdaCol": "SFDA license",
+    "payoutDaysCol": "Payout days",
+    "rebateCol": "Rebate rate"
   }
 }

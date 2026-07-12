@@ -69,6 +69,9 @@ enum AlertType {
 
 model Pharmacy {
   id                 String             @id @default(cuid())
+  // Bridges to Supabase Auth's own user store (not a Prisma-managed table) —
+  // Supabase Auth handles identity/OTP, Postgres/Prisma holds domain data.
+  authUserId         String             @unique @map("auth_user_id")
   name               String
   licenseNumber      String             @unique @map("license_number")
   licenseDocUrl      String             @map("license_doc_url")

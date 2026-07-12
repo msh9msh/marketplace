@@ -6,6 +6,8 @@ for *why* each field exists before changing any of them.
 
 ## Pharmacy
 - id
+- auth_user_id — links to the Supabase Auth user (Supabase Auth is a
+  separate identity store from Postgres/Prisma; this is the bridge).
 - name
 - license_number, license_doc_url
 - verification_status: enum [pending, verified, rejected]
