@@ -41,8 +41,8 @@ export function PharmacyProfileForm() {
         />
       </label>
       <TextField label={t("contactEmailLabel")} name="contactEmail" type="email" />
-      <TextField label={t("cityLabel")} name="city" />
-      <TextField label={t("addressLabel")} name="address" />
+      <TextField label={t("cityLabel")} name="city" required />
+      <TextField label={t("addressLabel")} name="address" required />
       <button
         type="submit"
         disabled={pending}

@@ -29,14 +29,18 @@ export async function submitPharmacyProfile(formData: FormData) {
       name: String(formData.get("name")),
       licenseNumber: String(formData.get("licenseNumber")),
       licenseDocUrl,
-      contactPhone: user.phone ?? String(formData.get("contactPhone")),
-      contactEmail: formData.get("contactEmail")
+      // Login is phone+OTP only today — email as a login identifier is a
+      // documented v4 target (see docs/tech-stack.md) not yet built.
+      loginIdentifierType: "mobile",
+      mobile: user.phone ?? null,
+      email: formData.get("contactEmail")
         ? String(formData.get("contactEmail"))
         : null,
-      city: formData.get("city") ? String(formData.get("city")) : null,
-      address: formData.get("address")
-        ? String(formData.get("address"))
+      city: String(formData.get("city")),
+      district: formData.get("district")
+        ? String(formData.get("district"))
         : null,
+      address: String(formData.get("address")),
     },
   });
 
