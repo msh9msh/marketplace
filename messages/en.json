@@ -6,11 +6,13 @@
   "Nav": {
     "login": "Log in",
     "signUp": "Pharmacy sign up",
+    "supplierSignUp": "Supplier sign up",
     "adminPharmacies": "Admin: pharmacy verification"
   },
   "Auth": {
     "loginTitle": "Log in",
     "signUpTitle": "Pharmacy sign up",
+    "supplierSignUpTitle": "Supplier sign up",
     "phoneLabel": "Phone number",
     "phonePlaceholder": "+9665XXXXXXXX",
     "sendCode": "Send code",
@@ -26,6 +28,15 @@
     "contactEmailLabel": "Contact email",
     "cityLabel": "City",
     "addressLabel": "Address",
+    "submit": "Submit for verification"
+  },
+  "SupplierSignUpForm": {
+    "nameLabel": "Supplier name",
+    "sfdaLicenseNumberLabel": "SFDA license number",
+    "sfdaLicenseDocLabel": "SFDA license document",
+    "contactEmailLabel": "Contact email",
+    "cityLabel": "City",
+    "districtLabel": "District",
     "submit": "Submit for verification"
   },
   "Pending": {

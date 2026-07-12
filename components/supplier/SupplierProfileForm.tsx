@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { submitPharmacyProfile } from "@/lib/actions/pharmacy";
+import { submitSupplierProfile } from "@/lib/actions/supplier";
 import { Field } from "@/components/forms/Field";
 
-export function PharmacyProfileForm() {
-  const t = useTranslations("SignUpForm");
+export function SupplierProfileForm() {
+  const t = useTranslations("SupplierSignUpForm");
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -15,7 +15,7 @@ export function PharmacyProfileForm() {
   async function handleSubmit(formData: FormData) {
     setPending(true);
     setError(null);
-    const result = await submitPharmacyProfile(formData);
+    const result = await submitSupplierProfile(formData);
     setPending(false);
     if (!result.ok) {
       setError(result.error);
@@ -28,22 +28,22 @@ export function PharmacyProfileForm() {
     <form action={handleSubmit} className="flex flex-col gap-4">
       <Field label={t("nameLabel")} name="name" required />
       <Field
-        label={t("licenseNumberLabel")}
-        name="licenseNumber"
+        label={t("sfdaLicenseNumberLabel")}
+        name="sfdaLicenseNumber"
         required
       />
       <label className="flex flex-col gap-1 text-sm text-neutral-600">
-        {t("licenseDocLabel")}
+        {t("sfdaLicenseDocLabel")}
         <input
           type="file"
-          name="licenseDoc"
+          name="sfdaLicenseDoc"
           required
           accept="application/pdf,image/*"
         />
       </label>
       <Field label={t("contactEmailLabel")} name="contactEmail" type="email" />
       <Field label={t("cityLabel")} name="city" required />
-      <Field label={t("addressLabel")} name="address" required />
+      <Field label={t("districtLabel")} name="district" />
       <button
         type="submit"
         disabled={pending}

@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { requireUser } from "@/lib/auth/session";
+import { requireUser, getUserRole } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 
 export default async function PendingPage({
@@ -9,13 +9,25 @@ export default async function PendingPage({
 }) {
   const { locale } = await params;
   const user = await requireUser(locale);
+  const role = await getUserRole();
   const t = await getTranslations("Pending");
 
-  const pharmacy = await prisma.pharmacy.findUnique({
-    where: { authUserId: user.id },
-  });
+  const verificationStatus =
+    role === "supplier"
+      ? (
+          await prisma.supplier.findUnique({
+            where: { authUserId: user.id },
+            select: { verificationStatus: true },
+          })
+        )?.verificationStatus
+      : (
+          await prisma.pharmacy.findUnique({
+            where: { authUserId: user.id },
+            select: { verificationStatus: true },
+          })
+        )?.verificationStatus;
 
-  const isRejected = pharmacy?.verificationStatus === "rejected";
+  const isRejected = verificationStatus === "rejected";
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-4 p-8 text-center">

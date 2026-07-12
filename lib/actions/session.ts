@@ -13,15 +13,23 @@ export async function getPostLoginDestination() {
     return "/login";
   }
 
-  const role = user.user_metadata?.role;
+  const role = user.app_metadata?.role;
 
   if (role === "admin") {
     return "/admin/pharmacies";
   }
 
   if (role === "supplier") {
-    // No supplier catalog/dashboard screens yet — see docs/roadmap.md.
-    return "/";
+    const supplier = await prisma.supplier.findUnique({
+      where: { authUserId: user.id },
+    });
+
+    if (!supplier) {
+      return "/supplier-sign-up";
+    }
+
+    // No supplier catalog/dashboard screen yet — see docs/roadmap.md.
+    return supplier.verificationStatus === "verified" ? "/" : "/pending";
   }
 
   const pharmacy = await prisma.pharmacy.findUnique({
