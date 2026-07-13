@@ -83,7 +83,8 @@
     "featuredYes": "Featured",
     "statusCol": "Status",
     "actionsCol": "Actions",
-    "edit": "Edit"
+    "edit": "Edit",
+    "bulkUpload": "Bulk upload (Excel)"
   },
   "SupplierCatalogForm": {
     "productNameLabel": "Product name",
@@ -98,5 +99,21 @@
     "statusInactive": "Inactive",
     "submitCreate": "Add item",
     "submitEdit": "Save changes"
+  },
+  "SupplierCatalogUpload": {
+    "title": "Bulk upload catalog",
+    "back": "Back to catalog",
+    "columnsHint": "Required columns: product_name, product_type, price, quantity_available. Optional: sku, discount_percentage, is_featured.",
+    "fileLabel": "Excel file (.xlsx)",
+    "submit": "Upload",
+    "summary": "{success} row(s) applied, {errors} row(s) had errors.",
+    "historyTitle": "Upload history",
+    "historyEmpty": "No uploads yet.",
+    "status_processing": "Processing",
+    "status_completed": "Completed",
+    "status_completed_with_errors": "Completed with errors",
+    "status_failed": "Failed",
+    "countsSummary": "{total} row(s), {success} applied, {errors} error(s)",
+    "rowError": "Row {row}: {error}"
   }
 }

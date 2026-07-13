@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 // docs/roadmap.md Phase 0.
 const PHARMACY_LICENSE_BUCKET = "pharmacy-licenses";
 const SUPPLIER_LICENSE_BUCKET = "supplier-licenses";
+const SUPPLIER_CATALOG_UPLOAD_BUCKET = "supplier-catalogs";
 
 async function uploadToBucket(bucket: string, authId: string, file: File) {
   const supabase = await createClient();
@@ -34,4 +35,8 @@ export function uploadSupplierLicenseDocument(
   file: File,
 ) {
   return uploadToBucket(SUPPLIER_LICENSE_BUCKET, supplierAuthId, file);
+}
+
+export function uploadSupplierCatalogFile(supplierId: string, file: File) {
+  return uploadToBucket(SUPPLIER_CATALOG_UPLOAD_BUCKET, supplierId, file);
 }

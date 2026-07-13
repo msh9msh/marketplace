@@ -83,7 +83,8 @@
     "featuredYes": "مميز",
     "statusCol": "الحالة",
     "actionsCol": "الإجراءات",
-    "edit": "تعديل"
+    "edit": "تعديل",
+    "bulkUpload": "رفع ملف إكسل"
   },
   "SupplierCatalogForm": {
     "productNameLabel": "اسم الصنف",
@@ -98,5 +99,21 @@
     "statusInactive": "غير نشط",
     "submitCreate": "إضافة الصنف",
     "submitEdit": "حفظ التغييرات"
+  },
+  "SupplierCatalogUpload": {
+    "title": "رفع الكتالوج بالجملة",
+    "back": "العودة إلى الكتالوج",
+    "columnsHint": "الأعمدة المطلوبة: product_name, product_type, price, quantity_available. اختياري: sku, discount_percentage, is_featured.",
+    "fileLabel": "ملف إكسل (.xlsx)",
+    "submit": "رفع",
+    "summary": "تم تطبيق {success} صف، وواجه {errors} صف أخطاء.",
+    "historyTitle": "سجل الرفع",
+    "historyEmpty": "لا يوجد رفع سابق.",
+    "status_processing": "قيد المعالجة",
+    "status_completed": "مكتمل",
+    "status_completed_with_errors": "مكتمل مع وجود أخطاء",
+    "status_failed": "فشل",
+    "countsSummary": "{total} صف، {success} تم تطبيقه، {errors} خطأ",
+    "rowError": "الصف {row}: {error}"
   }
 }

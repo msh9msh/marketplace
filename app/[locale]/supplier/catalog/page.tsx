@@ -22,7 +22,12 @@ export default async function SupplierCatalogPage({
 
   return (
     <main className="mx-auto max-w-4xl p-8">
-      <h1 className="mb-6 text-xl font-semibold">{t("title")}</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-xl font-semibold">{t("title")}</h1>
+        <Link href="/supplier/catalog/upload" className="text-sm underline">
+          {t("bulkUpload")}
+        </Link>
+      </div>
 
       <h2 className="mb-4 text-lg font-medium">{t("addTitle")}</h2>
       <div className="mb-10 rounded border p-6">
