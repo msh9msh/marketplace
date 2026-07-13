@@ -8,7 +8,8 @@
     "signUp": "Pharmacy sign up",
     "supplierSignUp": "Supplier sign up",
     "adminPharmacies": "Admin: pharmacy verification",
-    "adminSuppliers": "Admin: supplier verification"
+    "adminSuppliers": "Admin: supplier verification",
+    "supplierCatalog": "Supplier: my catalog"
   },
   "Auth": {
     "loginTitle": "Log in",
@@ -64,5 +65,38 @@
     "actionsCol": "Actions",
     "approve": "Approve",
     "reject": "Reject"
+  },
+  "SupplierCatalog": {
+    "title": "My catalog",
+    "addTitle": "Add new item",
+    "editTitle": "Edit item",
+    "back": "Back to catalog",
+    "empty": "No catalog items yet.",
+    "nameCol": "Product",
+    "typeCol": "Type",
+    "skuCol": "SKU",
+    "priceCol": "Price (SAR)",
+    "discountCol": "Discount",
+    "effectivePriceCol": "Effective price (SAR)",
+    "stockCol": "Stock",
+    "featuredCol": "Featured",
+    "featuredYes": "Featured",
+    "statusCol": "Status",
+    "actionsCol": "Actions",
+    "edit": "Edit"
+  },
+  "SupplierCatalogForm": {
+    "productNameLabel": "Product name",
+    "productTypeLabel": "Product type",
+    "skuLabel": "SKU",
+    "priceLabel": "Price (SAR)",
+    "discountPercentageLabel": "Discount (%)",
+    "quantityAvailableLabel": "Quantity available",
+    "isFeaturedLabel": "Featured item",
+    "statusLabel": "Status",
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "submitCreate": "Add item",
+    "submitEdit": "Save changes"
   }
 }

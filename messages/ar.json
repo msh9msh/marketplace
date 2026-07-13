@@ -8,7 +8,8 @@
     "signUp": "تسجيل صيدلية جديدة",
     "supplierSignUp": "تسجيل مورد جديد",
     "adminPharmacies": "الإدارة: التحقق من الصيدليات",
-    "adminSuppliers": "الإدارة: التحقق من الموردين"
+    "adminSuppliers": "الإدارة: التحقق من الموردين",
+    "supplierCatalog": "المورد: كتالوجي"
   },
   "Auth": {
     "loginTitle": "تسجيل الدخول",
@@ -64,5 +65,38 @@
     "actionsCol": "الإجراءات",
     "approve": "قبول",
     "reject": "رفض"
+  },
+  "SupplierCatalog": {
+    "title": "كتالوجي",
+    "addTitle": "إضافة صنف جديد",
+    "editTitle": "تعديل الصنف",
+    "back": "العودة إلى الكتالوج",
+    "empty": "لا توجد أصناف في الكتالوج بعد.",
+    "nameCol": "الصنف",
+    "typeCol": "النوع",
+    "skuCol": "رمز الصنف",
+    "priceCol": "السعر (ريال)",
+    "discountCol": "الخصم",
+    "effectivePriceCol": "السعر الفعلي (ريال)",
+    "stockCol": "الكمية المتاحة",
+    "featuredCol": "مميز",
+    "featuredYes": "مميز",
+    "statusCol": "الحالة",
+    "actionsCol": "الإجراءات",
+    "edit": "تعديل"
+  },
+  "SupplierCatalogForm": {
+    "productNameLabel": "اسم الصنف",
+    "productTypeLabel": "نوع الصنف",
+    "skuLabel": "رمز الصنف",
+    "priceLabel": "السعر (ريال)",
+    "discountPercentageLabel": "نسبة الخصم (%)",
+    "quantityAvailableLabel": "الكمية المتاحة",
+    "isFeaturedLabel": "صنف مميز",
+    "statusLabel": "الحالة",
+    "statusActive": "نشط",
+    "statusInactive": "غير نشط",
+    "submitCreate": "إضافة الصنف",
+    "submitEdit": "حفظ التغييرات"
   }
 }

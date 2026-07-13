@@ -1,5 +1,6 @@
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { prisma } from "@/lib/prisma";
 
 export type UserRole = "pharmacy" | "supplier" | "admin";
 
@@ -53,4 +54,25 @@ export async function requireSupplier(locale: string) {
   }
 
   return user;
+}
+
+// Catalog/upload/profile screens all sit behind "supplier, and verified" —
+// factored here since screens.md items 4-6 all need this same gate.
+export async function requireVerifiedSupplier(locale: string) {
+  const user = await requireSupplier(locale);
+  const supplier = await prisma.supplier.findUnique({
+    where: { authUserId: user.id },
+  });
+
+  if (!supplier) {
+    redirect({ href: "/supplier-sign-up", locale });
+    throw new Error("unreachable");
+  }
+
+  if (supplier.verificationStatus !== "verified") {
+    redirect({ href: "/pending", locale });
+    throw new Error("unreachable");
+  }
+
+  return supplier;
 }

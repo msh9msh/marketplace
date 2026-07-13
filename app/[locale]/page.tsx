@@ -39,6 +39,9 @@ function Content() {
         <Link href="/admin/suppliers" className="underline">
           {nav("adminSuppliers")}
         </Link>
+        <Link href="/supplier/catalog" className="underline">
+          {nav("supplierCatalog")}
+        </Link>
       </nav>
     </main>
   );
